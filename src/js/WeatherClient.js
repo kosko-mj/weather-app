@@ -109,7 +109,7 @@ class WeatherClient {
     if (rawData.days && rawData.days.length > 0) {
       // Skip day 0 (today) since we already have current conditions
       // Take next 7 days
-      const forecastDays = rawData.days.slice(1, 8);
+      const forecastDays = rawData.days.slice(0, 7);
       
       forecastDays.forEach(day => {
         forecast.push({

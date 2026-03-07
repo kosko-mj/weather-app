@@ -3,155 +3,146 @@
 // ====================================
 
 // Import styles
-import '../css/style.css';
-import WeatherClient from './WeatherClient.js';
+import "../css/style.css";
+import WeatherClient from "./WeatherClient.js";
 
-const API_KEY = 'FYK72UUCBXUGU782A7SBZ7CGK';
+const API_KEY = "FYK72UUCBXUGU782A7SBZ7CGK";
 const weather = new WeatherClient(API_KEY);
 
 // DOM elements
-const currentWeatherDisplay = document.querySelector('.current-weather-display');
-const forecastDisplay = document.querySelector('.forecast-display');
-const searchInput = document.querySelector('.search-input');
-const searchButton = document.querySelector('.search-button');
-const timeDisplay = document.querySelector('.time-display');
+const locationTitle = document.getElementById("location-title");
+const currentTemp = document.getElementById("current-temp");
+const currentCondition = document.getElementById("current-condition");
+const highLow = document.getElementById("high-low");
+const alertSection = document.getElementById("alert-section");
+const hourlyScroll = document.getElementById("hourly-scroll");
+const dailyList = document.getElementById("daily-list");
+const weatherBackground = document.querySelector(".weather-background");
 
-// Update the time
-function updateTime() {
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  timeDisplay.textContent = `${hours}:${minutes}`;
+// Get day name
+function getDayName(dateStr) {
+  const date = new Date(dateStr);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return days[date.getDay()];
 }
 
-// Determine theme based on weather conditions
-function getThemeFromWeather(data) {
-    if (!data) return 'theme-light';
-
-    const icon = data.current.icon;
-    const conditions = data.current.conditions.toLowerCase();
-    const uv = data.current.uvIndex;
-
-    // If the icon says it's night, use dark theme
-    if (icon.includes('night')) {
-        return 'theme-dark';
-    }
-
-    // It's daytime, check conditions
-    // Bright sun = light theme
-    if (conditions.includes('clear') ||
-        icon.includes('clear') ||
-        uv > 5) {
-        return 'theme-light';
-    }
-
-    // Heavy clouds/rain/fog = dim theme
-    if (conditions.includes('overcast') ||
-        conditions.includes('rain') ||
-        conditions.includes('fog') ||
-        conditions.includes('drizzle') ||
-        icon.includes('cloudy') ||
-        icon.includes('rain')) {
-        return 'theme-dim';
-    }
-
-    // Default to light
-    return 'theme-light';
+// Get weather icon
+function getWeatherIcon(iconCode) {
+  const iconMap = {
+    "clear-day": "ri-sun-line",
+    "clear-night": "ri-moon-line",
+    "partly-cloudy-day": "ri-sun-cloudy-line",
+    "partly-cloudy-night": "ri-moon-cloudy-line",
+    cloudy: "ri-cloud-line",
+    overcast: "ri-cloudy-line",
+    rain: "ri-rainy-line",
+    drizzle: "ri-drizzle-line",
+    snow: "ri-snowy-line",
+    sleet: "ri-showers-line",
+    wind: "ri-windy-line",
+    fog: "ri-foggy-line",
+    thunderstorm: "ri-thunderstorms-line",
+  };
+  return iconMap[iconCode] || "ri-cloud-line";
 }
 
-//Apply theme to body
+// Apply theme to background
 function applyTheme(theme) {
-    //remove existing theme classes
-    document.body.classList.remove('theme-light', 'theme-dim', 'theme-dark');
-    // Add new theme
-    document.body.classList.add(theme);
+  document.body.classList.remove("theme-light", "theme-dim", "theme-dark");
+  document.body.classList.add(theme);
+
+  if (theme === "theme-dark") {
+    weatherBackground.style.background = "linear-gradient(180deg, #0a0a1a 0%, #000 100%)";
+  } else if (theme === "theme-dim") {
+    weatherBackground.style.background = "linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%)";
+  } else {
+    weatherBackground.style.background = "linear-gradient(180deg, #4a6b8a 0%, #2a4a6a 100%)";
+  }
 }
 
 // Display weather data
 function displayWeather(data) {
   if (!data) return;
-  
-  // Apply theme based on weather conditions
-  const theme = getThemeFromWeather(data);
-  applyTheme(theme);
 
-  // Current weather
-  currentWeatherDisplay.innerHTML = `
-    <div class="current-weather">
-      <div class="temp-large">${Math.round(data.current.temp)}°</div>
-      <div class="conditions">${data.current.conditions}</div>
-      <div class="feels-like">feels like ${Math.round(data.current.feelsLike)}°</div>
-      
-      <div class="details-grid">
-        <div class="detail">
-          <span class="detail-label">wind</span>
-          <span class="detail-value">${Math.round(data.current.windSpeed)} mph</span>
-        </div>
-        <div class="detail">
-          <span class="detail-label">humidity</span>
-          <span class="detail-value">${Math.round(data.current.humidity)}%</span>
-        </div>
-        <div class="detail">
-          <span class="detail-label">uv</span>
-          <span class="detail-value">${data.current.uvIndex}</span>
-        </div>
-      </div>
+  // Apply theme (KEEP AS IS - perfect)
+  const icon = data.current.icon;
+  const conditions = data.current.conditions.toLowerCase();
+  const uv = data.current.uvIndex;
+  if (icon.includes("night")) applyTheme("theme-dark");
+  else if (conditions.includes("clear") || icon.includes("clear") || uv > 5) applyTheme("theme-light");
+  else applyTheme("theme-dim");
+
+  // Location (KEEP AS IS)
+  const locationParts = data.location.name.split(",");
+  locationTitle.textContent = locationParts[0] || data.location.name;
+
+  // Current weather (FIXED high/low)
+  currentTemp.textContent = `${Math.round(data.current.temp)}°`;
+  currentCondition.textContent = data.current.conditions;
+  const todayHigh = Math.round(data.forecast[0].maxTemp);  // TODAY
+  const todayLow = Math.round(data.forecast[0].minTemp);
+  highLow.textContent = `H:${todayHigh}° L:${todayLow}°`;
+
+  // Hourly (iPhone-style 4 items)
+  const hourlyItems = [
+  { label: 'Now', temp: Math.round(data.current.temp), icon: data.current.icon },
+  { label: 'Evening', temp: Math.round(data.forecast[0].minTemp + 8), icon: data.forecast[0].icon }, // 36+8=44°
+  { label: 'Tomorrow', temp: Math.round(data.forecast[1].maxTemp), icon: data.forecast[1].icon },
+  { label: getDayName(data.forecast[2]?.date), temp: Math.round(data.forecast[2]?.maxTemp), icon: data.forecast[2]?.icon }
+];
+
+
+  hourlyScroll.innerHTML = hourlyItems.map(item => `
+    <div class="hourly-item">
+      <span class="hourly-time">${item.label}</span>
+      <i class="hourly-icon ${getWeatherIcon(item.icon)}"></i>
+      <span class="hourly-temp">${item.temp}°</span>
     </div>
-  `;
+  `).join('');
+
+  // Daily (KEEP AS IS - works)
+  dailyList.innerHTML = data.forecast.slice(0, 5).map((day, index) => {
+  const dayName = index === 0 ? 'Today' : getDayName(day.date);
+  const iconClass = getWeatherIcon(day.icon);
+  const precipProb = (day.precipProb > 15 && day.icon && day.icon.includes('rain')) ? `${Math.round(day.precipProb)}%` : "";
+  const tempRange = ((day.maxTemp - day.minTemp) / day.maxTemp) * 100;  // ← NEW LINE
   
-  // Format forecast
-  const forecastHTML = data.forecast.slice(0, 5).map(day => {
-    const date = new Date(day.date);
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-    
-    return `
-      <div class="forecast-day">
-        <div class="forecast-day-name">${dayName}</div>
-        <div class="forecast-temp">${Math.round(day.maxTemp)}°/${Math.round(day.minTemp)}°</div>
-        <div class="forecast-conditions">${day.conditions.split(',')[0]}</div>
+  return `
+  <div class="daily-item">
+    <span class="daily-day">${dayName}</span>
+    <i class="daily-icon-small ${iconClass}"></i>
+    <span class="daily-precip">${precipProb}</span>
+    <div class="daily-temp-range">
+      <span class="daily-low">${Math.round(day.minTemp)}°</span>
+      <div class="daily-temp-bar" style="--temp-range: ${tempRange}%">
+        <div class="daily-temp-fill"></div>
       </div>
-    `;
-  }).join('');
-  
-  forecastDisplay.innerHTML = `
-    <div class="forecast-section">
-      <div class="forecast-grid">
-        ${forecastHTML}
-      </div>
+      <span class="daily-high">${Math.round(day.maxTemp)}°</span>
     </div>
-  `;
+  </div>
+`;
+
+}).join('');  // ← Don't forget .join('')
+
 }
 
+
+// Load weather
 async function loadWeather(location) {
-  currentWeatherDisplay.innerHTML = '<div class="loading">loading...</div>';
-  forecastDisplay.innerHTML = '';
-  
+  currentTemp.textContent = "--°";
+  currentCondition.textContent = "Loading...";
+  highLow.textContent = "H:--° L:--°";
+  hourlyScroll.innerHTML = '<div class="loading">Loading...</div>';
+  dailyList.innerHTML = '<div class="loading">Loading...</div>';
+
   try {
     const data = await weather.getWeather(location);
     displayWeather(data);
-    updateTime();
   } catch (error) {
-    currentWeatherDisplay.innerHTML = `<div class="error">${error.message}</div>`;
+    currentCondition.textContent = "Error loading weather";
+    console.error(error);
   }
 }
 
-// Event listeners
-searchButton.addEventListener('click', () => {
-  const location = searchInput.value.trim();
-  if (location) {
-    loadWeather(location);
-  }
-});
-
-searchInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    const location = searchInput.value.trim();
-    if (location) {
-      loadWeather(location);
-    }
-  }
-});
-
-// Initial load
-updateTime();
-loadWeather('Ridgewood, Queens');
+// Start
+loadWeather("Ridgewood, Queens");

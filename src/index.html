@@ -1,43 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KOSKO Weather</title>
-</head>
-<body>
-  <div class="app">
-    <header class="header">
-      <div class="header-left">
-        <h1 class="app-title">KOSKO</h1>
-        <span class="app-subtitle">weather</span>
-      </div>
-      <div class="header-right">
-        <span class="time-display">--:--</span>
-      </div>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
+    <title>KOSKO Weather</title>
 
-    <main class="main">
-      <!-- Search section -->
-      <div class="search-section">
-        <input type="text" class="search-input" placeholder="enter location">
-        <button class="search-button">update</button>
-      </div>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Full-screen background container -->
+    <div class="weather-background"></div>
 
-      <!-- Current weather display -->
-      <div class="current-weather-display">
-        <!-- Current weather will go here -->
+    <!-- Scrollable content overlay -->
+    <main class="weather-content">
+      <!-- Location header -->
+      <div class="location-header">
+        <div class="home-indicator">
+          <i class="ri-navigation-line home-arrow"></i>
+          <span class="home-text">Home</span>
+        </div>
       </div>
 
-      <!-- Forecast display -->
-      <div class="forecast-display">
-        <!-- Forecast will go here -->
-      </div>
+      <!-- Location name (centered) -->
+      <h1 class="location-title" id="location-title">Ridgewood</h1>
+
+      <!-- Current weather section -->
+      <section class="current-weather-section">
+        <div class="current-temp" id="current-temp">44°</div>
+        <div class="current-condition" id="current-condition">Cloudy</div>
+        <div class="high-low" id="high-low">H:49° L:37°</div>
+      </section>
+
+      <!-- Weather alert (conditionally shown) -->
+      <section class="alert-section" id="alert-section" style="display: none">
+        <div class="alert-box">
+          <p id="alert-message">
+            Hazy conditions expected around 5pm. Wind gusts are up to 15 mph.
+          </p>
+        </div>
+      </section>
+
+      <!-- Hourly forecast (horizontal scroll) -->
+      <section class="hourly-section">
+        <div class="hourly-scroll" id="hourly-scroll">
+          <!-- Hourly items will be injected here -->
+        </div>
+      </section>
+
+      <!-- 10-day forecast -->
+      <section class="daily-section">
+        <div class="daily-header">
+          <i class="ri-calendar-line daily-icon"></i>
+          <span class="daily-title">5-DAY FORECAST</span>
+        </div>
+        <div class="daily-list" id="daily-list">
+          <!-- Daily forecast items will be injected here -->
+        </div>
+      </section>
     </main>
-
-    <footer class="footer">
-      <span class="footer-text">KOSKO // data services</span>
-    </footer>
-  </div>
-</body>
+  </body>
 </html>
