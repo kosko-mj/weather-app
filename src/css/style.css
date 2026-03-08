@@ -57,27 +57,21 @@ body {
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0rem;
   padding: 0;
 }
 
 .home-indicator {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
   margin: 0;
   padding: 0;
 }
 
-.home-arrow {
-  font-size: 1.2rem;
+.home-icon {
+  font-size: 1.7rem;
   color: rgba(255, 255, 255, 0.9);
-}
-
-.home-text {
-  font-size: 1rem;
-  font-weight: 400;
-  opacity: 0.9;
 }
 
 .location-title {
@@ -87,7 +81,7 @@ body {
   font-weight: 300;
   margin: 0;
   padding: 0;
-  letter-spacing: 0.5px;
+  letter-spacing: 1.75px;
 }
 
 .hourly-section, .daily-section {
