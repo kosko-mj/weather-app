@@ -144,5 +144,25 @@ async function loadWeather(location) {
   }
 }
 
+// Search functionality
+const searchInput = document.getElementById("search-input");
+const searchButton = document.getElementById("search-button");
+
+searchButton.addEventListener("click", () => {
+  const location = searchInput.value.trim();
+  if (location) {
+    loadWeather(location);
+  }
+});
+
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const location = searchInput.value.trim();
+    if (location) {
+      loadWeather(location);
+    }
+  }
+});
+
 // Start
 loadWeather("Ridgewood, Queens");

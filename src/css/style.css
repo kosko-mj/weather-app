@@ -51,6 +51,56 @@ body {
 }
 
 /* ====================================
+   Search Bar
+   ==================================== */
+
+.search-container {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 0 1.5rem 0;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 300;
+}
+
+.search-input:focus {
+  outline: none;
+  border-bottom-color: rgba(255, 255, 255, 0.6);
+}
+
+.search-button {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.search-button:hover {
+  color: white;
+}
+
+/* ====================================
    Location Header & Title
    ==================================== */
 .location-header {
@@ -87,9 +137,9 @@ body {
 .hourly-section, .daily-section {
   width: 100%;
   max-width: 500px;
-  padding-top: 2.5rem;      /* ← Space above */
-  border-top: 1px solid rgba(255, 255, 255, 0.15);  /* ← iPhone separator */
-  margin-top: 0;            /* ← Remove old margin */
+  padding-top: 2.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 0;
 }
 
 
