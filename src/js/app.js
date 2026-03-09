@@ -23,7 +23,8 @@ const weatherBackground = document.querySelector(".weather-background");
 function getDayName(dateStr) {
   const date = new Date(dateStr);
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  return days[date.getDay()];
+  const adjustedIndex = (date.getDay() + 1) % 7;
+  return days[adjustedIndex];
 }
 
 // Get weather icon
@@ -99,6 +100,11 @@ function displayWeather(data) {
       <span class="hourly-temp">${item.temp}°</span>
     </div>
   `).join('');
+
+  console.log('Forecast data:', data.forecast.map(day => ({
+  date: day.date,
+  dayName: getDayName(day.date)
+})));
 
   // Daily (KEEP AS IS - works)
   dailyList.innerHTML = data.forecast.slice(0, 5).map((day, index) => {
