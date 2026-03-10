@@ -22,7 +22,7 @@ const weatherBackground = document.querySelector(".weather-background");
 // Get day name
 function getDayName(dateStr) {
   const date = new Date(dateStr);
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const adjustedIndex = (date.getDay() + 1) % 7;
   return days[adjustedIndex];
 }
@@ -53,13 +53,37 @@ function applyTheme(theme) {
   document.body.classList.add(theme);
 
   if (theme === "theme-dark") {
-    weatherBackground.style.background = "linear-gradient(180deg, #0a0a1a 0%, #000 100%)";
+    weatherBackground.style.background =
+      "linear-gradient(180deg, #0a0a1a 0%, #000 100%)";
   } else if (theme === "theme-dim") {
-    weatherBackground.style.background = "linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%)";
+    weatherBackground.style.background =
+      "linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%)";
   } else {
-    weatherBackground.style.background = "linear-gradient(180deg, #4a6b8a 0%, #2a4a6a 100%)";
+    weatherBackground.style.background =
+      "linear-gradient(180deg, #4a6b8a 0%, #2a4a6a 100%)";
   }
 }
+
+// Update date and time
+function updateDateTime() {
+  const now = new Date();
+  
+  // Minimal date: MM.DD
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const dateStr = `${month}.${day}`;
+  
+  // Minimal time: HH:MM (24-hour format feels more future-tech)
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const timeStr = `${hours}:${minutes}`;
+  
+  document.getElementById("header-date").textContent = dateStr;
+  document.getElementById("header-time").textContent = timeStr;
+}
+
+// Update every minute
+setInterval(updateDateTime, 60000);
 
 // Display weather data
 function displayWeather(data) {
@@ -70,7 +94,8 @@ function displayWeather(data) {
   const conditions = data.current.conditions.toLowerCase();
   const uv = data.current.uvIndex;
   if (icon.includes("night")) applyTheme("theme-dark");
-  else if (conditions.includes("clear") || icon.includes("clear") || uv > 5) applyTheme("theme-light");
+  else if (conditions.includes("clear") || icon.includes("clear") || uv > 5)
+    applyTheme("theme-light");
   else applyTheme("theme-dim");
 
   // Location (KEEP AS IS)
@@ -80,40 +105,67 @@ function displayWeather(data) {
   // Current weather (FIXED high/low)
   currentTemp.textContent = `${Math.round(data.current.temp)}°`;
   currentCondition.textContent = data.current.conditions;
-  const todayHigh = Math.round(data.forecast[0].maxTemp);  // TODAY
+  const todayHigh = Math.round(data.forecast[0].maxTemp); // TODAY
   const todayLow = Math.round(data.forecast[0].minTemp);
   highLow.textContent = `H:${todayHigh}° L:${todayLow}°`;
 
   // Hourly (iPhone-style 4 items)
   const hourlyItems = [
-  { label: 'Now', temp: Math.round(data.current.temp), icon: data.current.icon },
-  { label: 'Evening', temp: Math.round(data.forecast[0].minTemp + 8), icon: data.forecast[0].icon }, // 36+8=44°
-  { label: 'Tomorrow', temp: Math.round(data.forecast[1].maxTemp), icon: data.forecast[1].icon },
-  { label: getDayName(data.forecast[2]?.date), temp: Math.round(data.forecast[2]?.maxTemp), icon: data.forecast[2]?.icon }
-];
+    {
+      label: "Now",
+      temp: Math.round(data.current.temp),
+      icon: data.current.icon,
+    },
+    {
+      label: "Evening",
+      temp: Math.round(data.forecast[0].minTemp + 8),
+      icon: data.forecast[0].icon,
+    }, // 36+8=44°
+    {
+      label: "Tomorrow",
+      temp: Math.round(data.forecast[1].maxTemp),
+      icon: data.forecast[1].icon,
+    },
+    {
+      label: getDayName(data.forecast[2]?.date),
+      temp: Math.round(data.forecast[2]?.maxTemp),
+      icon: data.forecast[2]?.icon,
+    },
+  ];
 
-
-  hourlyScroll.innerHTML = hourlyItems.map(item => `
+  hourlyScroll.innerHTML = hourlyItems
+    .map(
+      (item) => `
     <div class="hourly-item">
       <span class="hourly-time">${item.label}</span>
       <i class="hourly-icon ${getWeatherIcon(item.icon)}"></i>
       <span class="hourly-temp">${item.temp}°</span>
     </div>
-  `).join('');
+  `,
+    )
+    .join("");
 
-  console.log('Forecast data:', data.forecast.map(day => ({
-  date: day.date,
-  dayName: getDayName(day.date)
-})));
+  console.log(
+    "Forecast data:",
+    data.forecast.map((day) => ({
+      date: day.date,
+      dayName: getDayName(day.date),
+    })),
+  );
 
   // Daily (KEEP AS IS - works)
-  dailyList.innerHTML = data.forecast.slice(0, 5).map((day, index) => {
-  const dayName = index === 0 ? 'Today' : getDayName(day.date);
-  const iconClass = getWeatherIcon(day.icon);
-  const precipProb = (day.precipProb > 15 && day.icon && day.icon.includes('rain')) ? `${Math.round(day.precipProb)}%` : "";
-  const tempRange = ((day.maxTemp - day.minTemp) / day.maxTemp) * 100;  // ← NEW LINE
-  
-  return `
+  dailyList.innerHTML = data.forecast
+    .slice(0, 5)
+    .map((day, index) => {
+      const dayName = index === 0 ? "Today" : getDayName(day.date);
+      const iconClass = getWeatherIcon(day.icon);
+      const precipProb =
+        day.precipProb > 15 && day.icon && day.icon.includes("rain")
+          ? `${Math.round(day.precipProb)}%`
+          : "";
+      const tempRange = ((day.maxTemp - day.minTemp) / day.maxTemp) * 100; // ← NEW LINE
+
+      return `
   <div class="daily-item">
     <span class="daily-day">${dayName}</span>
     <i class="daily-icon-small ${iconClass}"></i>
@@ -127,11 +179,9 @@ function displayWeather(data) {
     </div>
   </div>
 `;
-
-}).join('');  // ← Don't forget .join('')
-
+    })
+    .join(""); // ← Don't forget .join('')
 }
-
 
 // Load weather
 async function loadWeather(location) {
@@ -140,6 +190,8 @@ async function loadWeather(location) {
   highLow.textContent = "H:--° L:--°";
   hourlyScroll.innerHTML = '<div class="loading">Loading...</div>';
   dailyList.innerHTML = '<div class="loading">Loading...</div>';
+
+    updateDateTime(); // Show current date/time
 
   try {
     const data = await weather.getWeather(location);

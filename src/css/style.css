@@ -124,6 +124,39 @@ body {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 0.5rem auto;
+}
+
+.header-date, .header-time {
+  font-size: 0.9rem;
+  font-weight: 300;
+  opacity: 0.7;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.header-date {
+  text-align: left;
+}
+
+.header-time {
+  text-align: right;
+}
+
+.home-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 1rem;
+}
+
 .location-title {
   text-align: center;
   width: 100%;
