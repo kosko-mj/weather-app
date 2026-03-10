@@ -47,37 +47,60 @@ function getWeatherIcon(iconCode) {
   return iconMap[iconCode] || "ri-cloud-line";
 }
 
-// Apply theme to background
-function applyTheme(theme) {
+// Apply theme to background based on weather
+function applyTheme(icon, temp) {
+  // Remove old theme classes (keep for any other styling)
   document.body.classList.remove("theme-light", "theme-dim", "theme-dark");
-  document.body.classList.add(theme);
 
-  if (theme === "theme-dark") {
-    weatherBackground.style.background =
-      "linear-gradient(180deg, #0a0a1a 0%, #000 100%)";
-  } else if (theme === "theme-dim") {
-    weatherBackground.style.background =
-      "linear-gradient(180deg, #2a3a4a 0%, #1a2a3a 100%)";
+  let gradient;
+
+  if (icon.includes("clear")) {
+    document.body.classList.add("theme-light");
+    gradient =
+      temp > 75
+        ? "radial-gradient(ellipse 80% 50% at 20% -20%, #ff9a56 0%, #ff6b6b 25%, #74b9ff 50%, #0984e3 100%)"
+        : "linear-gradient(135deg, #74b9ff 0%, #a8e6cf 25%, #98d8e8 75%, #ffffff 100%)";
+  } else if (icon.includes("cloud") || icon.includes("overcast")) {
+    document.body.classList.add("theme-dim");
+    gradient =
+      "linear-gradient(145deg, #bdc3c7 0%, #95a5a6 30%, #7f8c8d 70%, #2c3e50 100%)";
+  } else if (icon.includes("rain") || icon.includes("drizzle")) {
+    document.body.classList.add("theme-dim");
+    gradient =
+      "linear-gradient(135deg, #2c3e50 0%, #3498db 40%, #1e3c72 80%, #0f2027 100%)";
+  } else if (icon.includes("snow") || icon.includes("sleet")) {
+    document.body.classList.add("theme-dim");
+    gradient =
+      "linear-gradient(135deg, #e6f3ff 0%, #b8e6ff 40%, #a1d6ff 70%, #74b9ff 100%)";
+  } else if (icon.includes("night")) {
+    document.body.classList.add("theme-dark");
+    gradient =
+      "radial-gradient(ellipse 60% 40% at 30% 20%, #1a1a2e 0%, #16213e 40%, #0f0f23 70%, #000 100%)";
   } else {
-    weatherBackground.style.background =
-      "linear-gradient(180deg, #4a6b8a 0%, #2a4a6a 100%)";
+    document.body.classList.add("theme-dim");
+    gradient = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
   }
+
+  // Apply gradient with smooth transition
+  weatherBackground.style.background = gradient;
+  weatherBackground.style.transition =
+    "background 1.5s cubic-bezier(0.4, 0, 0.2, 1)";
 }
 
 // Update date and time
 function updateDateTime() {
   const now = new Date();
-  
+
   // Minimal date: MM.DD
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
   const dateStr = `${month}.${day}`;
-  
+
   // Minimal time: HH:MM (24-hour format feels more future-tech)
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
   const timeStr = `${hours}:${minutes}`;
-  
+
   document.getElementById("header-date").textContent = dateStr;
   document.getElementById("header-time").textContent = timeStr;
 }
@@ -89,14 +112,10 @@ setInterval(updateDateTime, 60000);
 function displayWeather(data) {
   if (!data) return;
 
-  // Apply theme (KEEP AS IS - perfect)
+  // Apply theme based on weather
   const icon = data.current.icon;
-  const conditions = data.current.conditions.toLowerCase();
-  const uv = data.current.uvIndex;
-  if (icon.includes("night")) applyTheme("theme-dark");
-  else if (conditions.includes("clear") || icon.includes("clear") || uv > 5)
-    applyTheme("theme-light");
-  else applyTheme("theme-dim");
+  const temp = data.current.temp;
+  applyTheme(icon, temp);
 
   // Location (KEEP AS IS)
   const locationParts = data.location.name.split(",");
@@ -191,7 +210,7 @@ async function loadWeather(location) {
   hourlyScroll.innerHTML = '<div class="loading">Loading...</div>';
   dailyList.innerHTML = '<div class="loading">Loading...</div>';
 
-    updateDateTime(); // Show current date/time
+  updateDateTime(); // Show current date/time
 
   try {
     const data = await weather.getWeather(location);
