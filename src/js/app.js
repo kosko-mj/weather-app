@@ -18,6 +18,16 @@ const alertSection = document.getElementById("alert-section");
 const hourlyScroll = document.getElementById("hourly-scroll");
 const dailyList = document.getElementById("daily-list");
 const weatherBackground = document.querySelector(".weather-background");
+let isCelsius = false;
+
+// Unit Conversion
+function fahrenheitToCelsius(f) {
+  return Math.round(((f - 32) * 5) / 9);
+}
+
+function celsiusToFahrenheit(c) {
+  return Math.round((c * 9) / 5 + 32);
+}
 
 // Get day name
 function getDayName(dateStr) {
@@ -122,32 +132,47 @@ function displayWeather(data) {
   locationTitle.textContent = locationParts[0] || data.location.name;
 
   // Current weather (FIXED high/low)
-  currentTemp.textContent = `${Math.round(data.current.temp)}°`;
+  const displayTemp = isCelsius
+    ? fahrenheitToCelsius(data.current.temp)
+    : Math.round(data.current.temp);
+  currentTemp.textContent = `${displayTemp}°`;
   currentCondition.textContent = data.current.conditions;
-  const todayHigh = Math.round(data.forecast[0].maxTemp); // TODAY
-  const todayLow = Math.round(data.forecast[0].minTemp);
+  const todayHigh = isCelsius
+    ? fahrenheitToCelsius(data.forecast[0].maxTemp)
+    : Math.round(data.forecast[0].maxTemp);
+  const todayLow = isCelsius
+    ? fahrenheitToCelsius(data.forecast[0].minTemp)
+    : Math.round(data.forecast[0].minTemp);
   highLow.textContent = `H:${todayHigh}° L:${todayLow}°`;
 
   // Hourly (iPhone-style 4 items)
   const hourlyItems = [
     {
       label: "Now",
-      temp: Math.round(data.current.temp),
+      temp: isCelsius
+        ? fahrenheitToCelsius(data.current.temp)
+        : Math.round(data.current.temp),
       icon: data.current.icon,
     },
     {
       label: "Evening",
-      temp: Math.round(data.forecast[0].minTemp + 8),
+      temp: isCelsius
+        ? fahrenheitToCelsius(data.forecast[0].minTemp + 8)
+        : Math.round(data.forecast[0].minTemp + 8),
       icon: data.forecast[0].icon,
-    }, // 36+8=44°
+    },
     {
       label: "Tomorrow",
-      temp: Math.round(data.forecast[1].maxTemp),
+      temp: isCelsius
+        ? fahrenheitToCelsius(data.forecast[1].maxTemp)
+        : Math.round(data.forecast[1].maxTemp),
       icon: data.forecast[1].icon,
     },
     {
       label: getDayName(data.forecast[2]?.date),
-      temp: Math.round(data.forecast[2]?.maxTemp),
+      temp: isCelsius
+        ? fahrenheitToCelsius(data.forecast[2]?.maxTemp)
+        : Math.round(data.forecast[2]?.maxTemp),
       icon: data.forecast[2]?.icon,
     },
   ];
@@ -190,11 +215,15 @@ function displayWeather(data) {
     <i class="daily-icon-small ${iconClass}"></i>
     <span class="daily-precip">${precipProb}</span>
     <div class="daily-temp-range">
-      <span class="daily-low">${Math.round(day.minTemp)}°</span>
+     <span class="daily-low">${
+       isCelsius ? fahrenheitToCelsius(day.minTemp) : Math.round(day.minTemp)
+     }°</span>
       <div class="daily-temp-bar" style="--temp-range: ${tempRange}%">
         <div class="daily-temp-fill"></div>
       </div>
-      <span class="daily-high">${Math.round(day.maxTemp)}°</span>
+     <span class="daily-high">${
+       isCelsius ? fahrenheitToCelsius(day.maxTemp) : Math.round(day.maxTemp)
+     }°</span>
     </div>
   </div>
 `;
@@ -240,6 +269,18 @@ searchInput.addEventListener("keypress", (e) => {
     }
   }
 });
+
+// Toggle units by clicking current temp
+currentTemp.addEventListener("click", () => {
+  isCelsius = !isCelsius;
+
+  // Reload current data with new unit preference
+  const currentLocation = searchInput.value.trim() || "Ridgewood, Queens";
+  loadWeather(currentLocation);
+});
+
+// Set cursor style
+currentTemp.style.cursor = "pointer";
 
 // Start
 loadWeather("Ridgewood, Queens");
